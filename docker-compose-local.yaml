@@ -1,17 +1,33 @@
 version: "3.0"
 services:
-  db:
-    container_name: "delivery_db"
-    image: postgres:16
-    restart: always
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5430:5432"
-    networks:
-      - custom
+    db:
+      container_name: "delivery_db"
+      image: postgres:16
+      restart: always
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DB=postgres
+      ports:
+        - "5430:5432"
+      networks:
+        - custom
+
+    redis:
+      container_name: "delivery_redis"
+      image: redis:latest
+      restart: always
+      environment:
+        - REDIS_HOST=localhost
+        - REDIS_PORT=6379
+        - REDIS_DB=0
+        - REDIS_KEY=usd_to_rub_rate
+        - REDIS_TTL=3600
+      ports:
+        - "6379:6379"
+      networks:
+        - custom
+
 networks:
-  custom:
-    driver: bridge
+    custom:
+      driver: bridge

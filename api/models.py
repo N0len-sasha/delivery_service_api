@@ -1,10 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_setup import Base
 
-from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import Integer, String, Float, ForeignKey
 
 class Package(Base):
     __tablename__ = "packages"
@@ -13,7 +11,7 @@ class Package(Base):
     name: Mapped[str] = mapped_column(String)
     weight: Mapped[float] = mapped_column(Float)
     price: Mapped[float] = mapped_column(Float)
-    delivery_price: Mapped[float] = mapped_column(Float)
+    delivery_price: Mapped[float] = mapped_column(Float, nullable=True)
 
     type_id: Mapped[int] = mapped_column(Integer, ForeignKey('types.id'))
 

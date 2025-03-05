@@ -1,5 +1,5 @@
-import uvicorn
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncAttrs
+from sqlalchemy.ext.asyncio import (AsyncAttrs, AsyncSession,
+                                    create_async_engine)
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from api.config import REAL_DATABASE_URL

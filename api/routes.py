@@ -1,13 +1,14 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 
-from api.exchange_rate import _get_rate_value
 from api.models import Package, Type
 from db.db_setup import get_db
-from pydantic_schemas.models_schemas import PackageCreate, PackageAfterCreate, PackageBase
+from pydantic_schemas.models_schemas import (PackageAfterCreate, PackageBase,
+                                             PackageCreate)
 
 api_router = APIRouter()
 
@@ -20,12 +21,10 @@ async def _get_packages(db: AsyncSession = Depends(get_db)):
 @api_router.post('/packages/')
 async def _create_package(package: PackageCreate,
                           db: AsyncSession = Depends(get_db)) -> PackageAfterCreate:
-    delivery_price = await _get_rate_value(package.weight, package.price)
     new_package = Package(
         name=package.name,
         weight = package.weight,
         price = package.price,
-        delivery_price = delivery_price,
         type_id=package.type_id
     )
     db.add(new_package)

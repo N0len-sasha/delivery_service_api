@@ -1,11 +1,14 @@
 from pydantic import BaseModel
 
-###PACKAGES##
+###TYPES##
+
 class TypeResponse(BaseModel):
     name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+###PACKAGES##
 
 class PackageBase(BaseModel):
     name: str
@@ -15,7 +18,7 @@ class PackageBase(BaseModel):
     delivery_price: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class Package(PackageBase):
     package_id: int
@@ -31,4 +34,3 @@ class PackageAfterCreate(BaseModel):
 
 class PackageById(PackageBase):
     ...
-###TYPES##
