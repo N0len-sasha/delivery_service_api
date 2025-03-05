@@ -5,6 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from fastapi_pagination import add_pagination
 
 from api.exchange_rate import loop_fetch
 from api.models import Type
@@ -48,6 +49,7 @@ async def lifespan(app: FastAPI):
         yield
 
 app = FastAPI(title="delivery_service", lifespan=lifespan)
+add_pagination(app)
 app.include_router(router=api_router, prefix="/api_v1", tags=["api_v1"])
 
 

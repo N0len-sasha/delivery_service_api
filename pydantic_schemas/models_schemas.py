@@ -3,6 +3,19 @@ from typing import Union
 from fastapi import HTTPException
 from pydantic import BaseModel, field_validator, model_validator
 
+###USERS##
+
+class BaseUser(BaseModel):
+    username: str
+
+class PUser(BaseUser):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+class UserCreate(BaseUser):
+    pass
 
 ###TYPES##
 
