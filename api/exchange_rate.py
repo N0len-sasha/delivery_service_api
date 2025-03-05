@@ -36,8 +36,7 @@ async def get_chached_rate():
 async def loop_fetch(db: AsyncSession):
     while True:
         await update_delivery_price(db)
-        await asyncio.sleep(5)
-
+        await asyncio.sleep(300)
 
 async def update_delivery_price(db: AsyncSession):
     rate = await get_chached_rate()
