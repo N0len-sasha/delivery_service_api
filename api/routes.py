@@ -83,9 +83,9 @@ async def _get_packages(type: str = Query(None, description="Filter by package t
 
     if has_price is not None:
         if has_price:
-            query = query.filter(Package.delivery_price != None)
+            query = query.filter(Package.delivery_price is not None)
         else:
-            query = query.filter(Package.delivery_price == None)
+            query = query.filter(Package.delivery_price is None)
     return await paginate(db, query)
 
 
