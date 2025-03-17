@@ -1,8 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import Response
-from fastapi import Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
@@ -11,14 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.models import Package, Type, User
 from db.db_setup import get_db
 from pydantic_schemas.models_schemas import (PackageAfterCreate, PackageBase,
-                                             PackageCreate, TypeResponse, UserCreate,
-                                             PUser)
+                                             PackageCreate, PUser,
+                                             TypeResponse, UserCreate)
 
 api_router = APIRouter()
 
 
 @api_router.post('/register/', response_model=UserCreate)
-async def _create_user(user: UserCreate,
+async def create_user(user: UserCreate,
                        db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.username == user.username))
     existing_user = result.scalars().first()
@@ -35,7 +34,7 @@ async def _create_user(user: UserCreate,
 
 
 @api_router.post('/login/', response_model=PUser)
-async def _login_user(user_data: UserCreate,
+async def login_user(user_data: UserCreate,
                       response: Response,
                       db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.username == user_data.username))
@@ -71,7 +70,7 @@ async def get_current_user(request: Request,
 
 
 @api_router.get('/packages/', response_model=Page[PackageBase])
-async def _get_packages(type: str = Query(None, description="Filter by package type"),
+async def get_packages(type: str = Query(None, description="Filter by package type"),
                         has_price: float = Query(None, description="Filter by delivery price"),
                         db: AsyncSession = Depends(get_db),
                         current_user: User = Depends(get_current_user)):
@@ -90,7 +89,7 @@ async def _get_packages(type: str = Query(None, description="Filter by package t
 
 
 @api_router.post('/packages/')
-async def _create_package(package: PackageCreate,
+async def create_package(package: PackageCreate,
                           db: AsyncSession = Depends(get_db),
                           current_user: User = Depends(get_current_user)) -> PackageAfterCreate:
     result = await db.execute(select(Type).filter(Type.id == package.type_id))
@@ -113,7 +112,7 @@ async def _create_package(package: PackageCreate,
 
 
 @api_router.get('/packages/{package_id}', response_model=PackageBase)
-async def _read_package(package_id: int,
+async def read_package(package_id: int,
                         db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Package).filter(Package.id == package_id))
     package = result.scalars().first()
@@ -125,7 +124,7 @@ async def _read_package(package_id: int,
 
 
 @api_router.get('/types/', response_model=List[TypeResponse])
-async def _get_types(db: AsyncSession = Depends(get_db)):
+async def get_types(db: AsyncSession = Depends(get_db)):
     response = await db.execute(select(Type))
     types = response.scalars().all()
     return types

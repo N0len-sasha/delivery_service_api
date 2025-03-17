@@ -1,4 +1,3 @@
-version: "3.0"
 services:
     db:
       container_name: "delivery_db"
@@ -25,6 +24,23 @@ services:
         - REDIS_TTL=3600
       ports:
         - "6379:6379"
+      networks:
+        - custom
+
+    app:
+      container_name: "delivery_app"
+      build:
+        context: .
+        dockerfile: Dockerfile
+      restart: always
+      ports:
+        - "8000:8000"
+      environment:
+        - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+        - REDIS_URL=redis://redis:6379/0
+      depends_on:
+        - db
+        - redis
       networks:
         - custom
 

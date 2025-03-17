@@ -3,16 +3,16 @@ from contextlib import asynccontextmanager
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
+from fastapi_pagination import add_pagination
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from fastapi_pagination import add_pagination
 
+from api.config import Config
 from api.exchange_rate import loop_fetch
 from api.models import Type
 from api.routes import api_router
 from db.db_setup import get_db
 
-timezone = 'Europe/Moscow'
 
 async def initialize_types(session: AsyncSession):
     result = await session.execute(select(Type))
@@ -38,7 +38,7 @@ def create_start_loop_fetch(db: AsyncSession):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    scheduler = AsyncIOScheduler(timezone=f'{timezone}')
+    scheduler = AsyncIOScheduler(timezone=f'{Config.TIMEZONE}')
 
     async for db in get_db():
         await initialize_types(db)
@@ -47,6 +47,7 @@ async def lifespan(app: FastAPI):
         scheduler.start()
 
         yield
+        scheduler.shutdown()
 
 app = FastAPI(title="delivery_service", lifespan=lifespan)
 add_pagination(app)

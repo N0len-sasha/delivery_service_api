@@ -1,7 +1,7 @@
 from typing import Union
 
-from fastapi import HTTPException
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, field_validator, model_validator, ValidationError
+
 
 ###USERS##
 
@@ -56,17 +56,13 @@ class PackageCreate(BaseModel):
     @field_validator('price')
     def validate_price(cls, value):
         if value <= 0:
-            raise HTTPException(
-                status_code=422, detail="Price must be greater than 0"
-            )
+            raise ValidationError("Price must be greater than 0")
         return value
 
     @field_validator('weight')
     def validate_weight(cls, value):
         if value <= 0:
-            raise HTTPException(
-                status_code=422, detail="Weight must be greater than 0"
-            )
+            raise ValidationError("Weight must be greater than 0")
         return value
 
 class PackageAfterCreate(BaseModel):

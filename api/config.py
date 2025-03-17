@@ -17,7 +17,8 @@ class Config:
     REDIS_DB = int(os.getenv("REDIS_DB", 0))
     REDIS_KEY = os.getenv("REDIS_KEY", "usd_to_rub_rate")
     REDIS_TTL = int(os.getenv("REDIS_TTL", 3600))
-
+    SQLALCHEMY_URL = int(os.getenv("SQLALCHEMY_URL"))
+    TIMEZONE = str(os.getenv("TIMEZONE"))
     CBR_API_URL = os.getenv("CBR_API_URL", "https://www.cbr-xml-daily.ru/daily_json.js")
 
 config = Config()
