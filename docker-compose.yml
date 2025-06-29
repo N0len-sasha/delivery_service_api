@@ -32,14 +32,15 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@delivery_service_db:5432/postgres
-      - REDIS_URL=redis://localhost:6379/0
-      - CELERY_BROKER_URL=redis://localhost:6379/0
+      - DATABASE_URL=postgresql://postgres:1234567890@delivery_db:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
     depends_on:
       - db
       - redis
     networks:
       - custom
+
 
   celery_worker:
     container_name: "delivery_celery"

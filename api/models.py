@@ -25,7 +25,7 @@ class Package(Base):
     user: Mapped["User"] = relationship("User", back_populates="packages", lazy="selectin")
 
     type_id: Mapped[int] = mapped_column(Integer, ForeignKey('types.id'))
-    type: Mapped["Type"] = relationship("Type", back_populates="package", lazy="selectin")
+    type: Mapped["Type"] = relationship("Type", back_populates="packages", lazy="selectin")
 
 
 class Type(Base):
@@ -34,5 +34,5 @@ class Type(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, unique=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
 
-    package: Mapped["Package"] = relationship("Package", back_populates="type", lazy="selectin")
+    packages: Mapped[list["Package"]] = relationship("Package", back_populates="type", lazy="selectin")
 
