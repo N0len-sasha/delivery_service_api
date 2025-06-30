@@ -15,7 +15,7 @@ from db.db_setup import get_db
 from alembic import command
 from alembic.config import Config as AlembicConfig
 
-
+lock = asyncio.Lock()
 
 async def initialize_types(session: AsyncSession):
     result = await session.execute(select(Type))
@@ -35,7 +35,8 @@ async def start_loop_fetch(db: AsyncSession):
 
 def create_start_loop_fetch(db: AsyncSession):
     async def wrapper():
-        await start_loop_fetch(db)
+        async with lock:
+            await start_loop_fetch(db)
     return wrapper
 
 async def run_migrations():
@@ -49,11 +50,13 @@ async def lifespan(app: FastAPI):
 
     async for db in get_db():
         await initialize_types(db)
-        scheduler.add_job(func=create_start_loop_fetch(db), trigger='interval', seconds=10, max_instances=2)
+
+        scheduler.add_job(func=create_start_loop_fetch(db), trigger='interval', seconds=10, max_instances=1)
         scheduler.start()
 
         yield
         scheduler.shutdown()
+        break
 
 app = FastAPI(title="delivery_service", lifespan=lifespan)
 add_pagination(app)
