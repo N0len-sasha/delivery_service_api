@@ -13,7 +13,7 @@ class Config:
     CBR_API_URL = os.getenv("CBR_API_URL", "https://www.cbr-xml-daily.ru/daily_json.js")
     RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@localhost/")
     QUEUE_NAME = os.getenv("QUEUE_NAME", "delivery_tasks")
-    DB_URL = str(os.getenv("SQLALCHEMY_URL"))
+    DB_URL = REAL_DATABASE_URL
 
 
 config = Config()

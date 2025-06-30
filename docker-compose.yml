@@ -28,10 +28,24 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A messaging.celery_app.celery_app worker --loglevel=info --concurrency=2
+    command: celery -A messaging.celery_worker.celery_app_conf worker --loglevel=info --concurrency=2 -Q delivery_queue
     restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - app
+      - redis
+    networks:
+      - custom
+
+  celery_beat:
+    container_name: "delivery_beat"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A messaging.celery_worker.celery_app_conf beat --loglevel=info
+    restart: always
+    depends_on:
       - redis
     networks:
       - custom
