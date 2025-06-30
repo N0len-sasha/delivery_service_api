@@ -23,6 +23,19 @@ services:
     networks:
       - custom
 
+  celery_worker:
+    container_name: "delivery_celery"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A messaging.celery_app.celery_app worker --loglevel=info --concurrency=2
+    restart: always
+    depends_on:
+      - app
+      - redis
+    networks:
+      - custom
+
   app:
     container_name: "delivery_app"
     build:
@@ -37,20 +50,6 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
     depends_on:
       - db
-      - redis
-    networks:
-      - custom
-
-
-  celery_worker:
-    container_name: "delivery_celery"
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: celery -A messaging.celery_app.celery_app worker --loglevel=info --concurrency=2
-    restart: always
-    depends_on:
-      - app
       - redis
     networks:
       - custom

@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-
+import asyncio
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI
@@ -12,6 +12,9 @@ from api.exchange_rate import loop_fetch
 from api.models import Type
 from api.routes import api_router
 from db.db_setup import get_db
+from alembic import command
+from alembic.config import Config as AlembicConfig
+
 
 
 async def initialize_types(session: AsyncSession):
@@ -35,15 +38,18 @@ def create_start_loop_fetch(db: AsyncSession):
         await start_loop_fetch(db)
     return wrapper
 
+async def run_migrations():
+    alembic_cfg = AlembicConfig("alembic.ini")
+    await asyncio.to_thread(command.upgrade, alembic_cfg, "head")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await run_migrations()
     scheduler = AsyncIOScheduler(timezone=f'{Config.TIMEZONE}')
 
     async for db in get_db():
         await initialize_types(db)
-
-        scheduler.add_job(func=create_start_loop_fetch(db), trigger='interval', seconds=10)
+        scheduler.add_job(func=create_start_loop_fetch(db), trigger='interval', seconds=10, max_instances=2)
         scheduler.start()
 
         yield
@@ -52,7 +58,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="delivery_service", lifespan=lifespan)
 add_pagination(app)
 app.include_router(router=api_router, prefix="/api_v1", tags=["api_v1"])
-
 
 if __name__ == '__main__':
     uvicorn.run(app, host='localhost', port=8000)

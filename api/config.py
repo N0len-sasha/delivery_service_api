@@ -3,7 +3,7 @@ import os
 class Config:
     REAL_DATABASE_URL=os.getenv("REAL_DATABASE_URL",
                                 default="postgresql+asyncpg://postgres:1234567890@delivery_db:5432/postgres")
-    REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+    REDIS_HOST = os.getenv("REDIS_HOST", "redis")
     REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
     REDIS_DB = int(os.getenv("REDIS_DB", 0))
     REDIS_KEY = os.getenv("REDIS_KEY", "usd_to_rub_rate")
