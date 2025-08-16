@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: "delivery_db"
+    image: postgres:16
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234567890
+      - POSTGRES_DB=postgres
+    ports:
+      - "5430:5432"
+    networks:
+      - custom
+
+  redis:
+    container_name: "delivery_redis"
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - custom
+
+  celery_worker:
+    container_name: "delivery_celery"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A messaging.celery_worker.celery_app_conf worker --loglevel=info --concurrency=2 -Q delivery_queue
+    restart: always
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - app
+      - redis
+    networks:
+      - custom
+
+  celery_beat:
+    container_name: "delivery_beat"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A messaging.celery_worker.celery_app_conf beat --loglevel=info
+    restart: always
+    depends_on:
+      - redis
+    networks:
+      - custom
+
+  app:
+    container_name: "delivery_app"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234567890@delivery_db:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - custom
+
+networks:
+  custom:
+    driver: bridge
